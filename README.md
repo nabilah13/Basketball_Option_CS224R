@@ -9,5 +9,7 @@ The exercise payout is the difference between the points scored by the player of
 ### Dataset
 The starting NBA play-by-play dataset was scraped from Basketball Reference and is available publicly on Kaggle at the following link: https://www.kaggle.com/datasets/schmadam97/nba-playbyplay-data-20182019?select=NBA_PBP_2020-21.csv
 
+The dataset is too large to host directly on GitHub, but it is hosted in full on Kaggle.
+
 ### Data Preprocessing
-We form a dataset of NBA player-games with one row for each quarter of the game. We use "CumulativePlayerPointsInterval" and "RollingAvgPlayerPointsInterval" as the equivalent of the American option spot price and strike price, respectively. The difference between these two fields determines the exercise value of the basketball option.
+In data_preprocessing.py, we transform the play-by-play data from Basketball Reference into a dataset of NBA player-games with one row for each quarter of the game. We use "CumulativePlayerPointsInterval" and "RollingAvgPlayerPointsInterval" as the equivalent of the American option spot price and strike price, respectively. The difference between these two fields determines the exercise value of the basketball option.
