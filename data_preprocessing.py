@@ -2,7 +2,7 @@ import argparse
 import pandas as pd
 import numpy as np
 
-from features_config import FEATURES
+from features_config import PREPROCESSING_FEATURES
 
 def preprocess_data(input_path, output_path):
     # Load the CSV file
@@ -215,9 +215,9 @@ if __name__ == "__main__":
     df = stack_intervals(df, args.intervals, metric='Points')
 
     # Remove players first min_player_games, subset columns
-    df = df.loc[df["PlayerGameNumber"] >= 10, FEATURES]
+    df = df.loc[df["PlayerGameNumber"] >= 10, PREPROCESSING_FEATURES]
     df = df.sort_values(by=['Player', 'GameId', 'Interval'], ascending=True)
-    df = df.loc[df["RollingAvgPlayerPoints"] >= 15, FEATURES]
+    df = df.loc[df["RollingAvgPlayerPoints"] >= 15, PREPROCESSING_FEATURES]
     df["RollingAvgPlayerPointsInterval"] =  df["RollingAvgPlayerPoints"] * df["Interval"] / args.intervals
 
     # Write the output dataframe to a CSV file
