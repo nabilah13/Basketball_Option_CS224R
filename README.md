@@ -13,3 +13,9 @@ The dataset is too large to host directly on GitHub, but it is hosted in full on
 
 ### Data Preprocessing
 In `data_preprocessing.py`, we transform the play-by-play data from Basketball Reference into a dataset of NBA player-games with one row for each quarter of the game. We use `CumulativePlayerPointsInterval` and `RollingAvgPlayerPointsInterval` as the equivalent of the American option spot price and strike price, respectively. The difference between these two fields determines the exercise value of the basketball option.
+
+### Dataset Creation
+In `dataset.py`, we create a PyTorch dataloader suitable for q-learning. We seek to learn by iterating over state, reward, next state tuples, while also keeping track of the player, gameId, and whether or not the current state is terminal.
+
+### Models
+In `models.py`, we define PyTorch modules for a multi-layer perceptron model (for Deep Q-Learning) and Linear Regression model (for Least-Squares Policy Iteration).
