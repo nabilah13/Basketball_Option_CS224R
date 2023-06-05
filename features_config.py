@@ -34,3 +34,11 @@ TRAINING_FEATURES = [
     "RollingAverageOpposingTeamAllowedPoints",
     "RollingAverageTeamPoints",
 ]
+
+FEATURES_TO_NORMALIZE = [
+    "ScoreMarginInterval",
+    "ScoreMarginxTimeRemainingInterval",
+    "ScoreMarginxTimeRemaining2Interval",
+    "RollingAverageOpposingTeamAllowedPoints",
+    "RollingAverageTeamPoints",
+]

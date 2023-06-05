@@ -188,12 +188,18 @@ def stack_intervals(df: pd.DataFrame, intervals: int, metric: str):
 if __name__ == "__main__":
     # Create an argument parser
     parser = argparse.ArgumentParser(description="Data preprocessing script")
-    parser.add_argument("--input_path", type=str, nargs='?', default="NBA_PBP_Datasets/NBA_PBP_2018-19.csv", help="Path to the input CSV file")
-    parser.add_argument("--output_path", type=str, nargs='?', default="processed_data/nba_games_2018-19.csv", help="Path to save the processed CSV file")
+    parser.add_argument("--input_path", type=str, nargs='?', 
+                        default="NBA_PBP_Datasets/NBA_PBP_2018-19.csv", 
+                        help="Path to the input CSV file")
+    parser.add_argument("--output_path", type=str, nargs='?', 
+                        default="processed_data/nba_games_2018-19.csv", 
+                        help="Path to save the processed CSV file")
     parser.add_argument("--intervals", type=int, nargs='?', default=4, help="How many intervals to split the game into")
     parser.add_argument("--remove_playoffs", type=bool, nargs='?', default=True, help="Whether to remove playoff games")
-    parser.add_argument("--min_player_games", type=int, nargs='?', default=10, help="Minimum number of games a player must have played to be included")
-    parser.add_argument("--min_player_avg_points", type=int, nargs='?', default=15, help="Minimum average points a player must have to be included")
+    parser.add_argument("--min_player_games", type=int, nargs='?', 
+                        default=10, help="Minimum number of games a player must have played to be included")
+    parser.add_argument("--min_player_avg_points", type=int, nargs='?', 
+                        default=15, help="Minimum average points a player must have to be included")
 
     # Parse the command-line arguments
     args = parser.parse_args()
@@ -218,7 +224,6 @@ if __name__ == "__main__":
     df = df.loc[df["PlayerGameNumber"] >= 10, PREPROCESSING_FEATURES]
     df = df.sort_values(by=['Player', 'GameId', 'Interval'], ascending=True)
     df = df.loc[df["RollingAvgPlayerPoints"] >= 15, PREPROCESSING_FEATURES]
-    df["RollingAvgPlayerPointsInterval"] =  df["RollingAvgPlayerPoints"] * df["Interval"] / args.intervals
 
     # Write the output dataframe to a CSV file
     df.to_csv(args.output_path, index=False)
