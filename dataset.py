@@ -25,15 +25,25 @@ class BasketballDataset(Dataset):
         exercise_payout = current_row["CumulativePlayerPointsInterval"] - strike
         reward = torch.max(torch.tensor(exercise_payout), torch.tensor(0))
 
+        next_interval = next_row["Interval"]
+        next_strike = next_row["RollingAvgPlayerPoints"] * next_interval / self.intervals
+        next_exercise_payout = next_row["CumulativePlayerPointsInterval"] - next_strike
+        next_reward = torch.max(torch.tensor(next_exercise_payout), torch.tensor(0))
+
         if current_interval == self.intervals:
             terminal = True
         else:
             terminal = False
 
+        if next_interval == self.intervals:
+            next_terminal = True
+        else:
+            next_terminal = False
+
         state = torch.tensor(current_row[TRAINING_FEATURES].values.astype(np.float32))
         next_state = torch.tensor(next_row[TRAINING_FEATURES].values.astype(np.float32))
 
-        return state, reward, next_state, terminal, gameId, player, current_interval
+        return state, reward, next_state, next_reward, terminal, next_terminal, gameId, player, current_interval
     
 def create_basketball_dataloader(input_df: pd.DataFrame, batch_size: int = 32, shuffle: bool = True, 
                                  num_workers: int = 0, num_intervals: int = 4):

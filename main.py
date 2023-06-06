@@ -17,15 +17,24 @@ def train_dqn_model(num_epochs: int, train_dataloader, valid_dataloader, model: 
         epoch_loss = 0.0
         num_batches = 0
         for _, batch in train_progress_bar:
-            state, reward, next_state, terminal, _, _, _ = batch
+            state, reward, next_state, next_reward, terminal, next_terminal, _, _, _ = batch
+
             # compute q score
             q_score = model(state).flatten()
             q_score_next = model(next_state).flatten()
-            # detach q_score_next, set to zero if terminal
+            # detach q_score_next
             q_score_next = q_score_next.detach()
-            q_score_next[terminal] = 0
+            # ignore values when current state is terminal
+            q_score = q_score * (~terminal).float()
+            q_score_next = q_score_next * (~terminal).float()
+            next_reward = next_reward * (~terminal).float()
+
+            # if the next state is terminal, then the q_score_next is 0
+            q_score_next = q_score_next * (~next_terminal).float()
+
             # compute loss
-            loss = torch.mean((torch.max(reward, q_score_next) - q_score)**2)
+            loss = torch.mean((torch.max(next_reward, q_score_next) - q_score)**2)
+
             # compute gradient
             optimizer.zero_grad()
             loss.backward()
@@ -48,14 +57,22 @@ def train_dqn_model(num_epochs: int, train_dataloader, valid_dataloader, model: 
             num_batches = 0
             for _, batch in valid_progress_bar:
                 with torch.no_grad():
-                    state, reward, next_state, terminal, _, _, _ = batch
+                    state, reward, next_state, next_reward, terminal, next_terminal, _, _, _ = batch
                     # compute q score
                     q_score = model(state).flatten()
                     q_score_next = model(next_state).flatten()
-                    # set to zero if terminal
-                    q_score_next[terminal] = 0
+
+                    # ignore values when current state is terminal
+                    q_score = q_score * (~terminal).float()
+                    q_score_next = q_score_next * (~terminal).float()
+                    next_reward = next_reward * (~terminal).float()
+
+                    # if the next state is terminal, then the q_score_next is 0
+                    q_score_next = q_score_next * (~next_terminal).float()
+
                     # compute loss
-                    loss = torch.mean((torch.max(reward, q_score_next) - q_score)**2)
+                    loss = torch.mean((torch.max(next_reward, q_score_next) - q_score)**2)
+
                     # update progress bar
                     valid_loss += loss.item()
                     num_batches += 1
@@ -74,7 +91,11 @@ def score_validation_df(valid_dataloader, model: DQN_model):
     
     for _, batch in valid_progress_bar:
         with torch.no_grad():
-            state, reward, next_state, terminal, gameId, player, interval = batch
+            (
+                state, reward, next_state,
+                next_reward, terminal, next_terminal,
+                gameId, player, interval,
+            ) = batch
             # compute q score
             q_score = model(state).flatten()
             # exercise true if terminal is true or if reward is greater than q_score_next
