@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -33,3 +34,27 @@ class LSPI_model(nn.Module):
     def forward(self, x):
         x2 = self.layer1(x)
         return x2
+    
+class LSPI_model_np():
+    def __init__(self, num_features: int):
+        self.A_inv = np.eye(num_features)
+        self.b = np.zeros(num_features)
+        self.wts = np.zeros(num_features).reshape(-1,1)
+
+    def forward(self, x):
+        x = x.numpy().reshape(1,-1)
+        return x.dot(self.wts)
+
+    def update(self, state, reward, next_state, next_reward, terminal, next_terminal):
+        # Update parameters using Sherman Morrison incremental inverse
+        q_value_next = self.forward(next_state.numpy(), self.wts)
+        I_c1 = (1-1.0*next_terminal) * (q_value_next > next_reward)
+        I_c2 = 1.0 - I_c1
+
+        phi1 = state.numpy().reshape(-1,1)
+        phi2 =  phi1 - I_c1 * next_state.numpy().reshape(-1,1)
+        temp = self.A_inv.T.dot(phi2)
+        self.A_inv -= np.outer(self.A_inv.dot(phi1), temp) / (1 + phi1.dot(temp))
+        self.b += phi1 * I_c2 * next_reward
+
+        self.wts = self.A_inv.dot(self.b)
