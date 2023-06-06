@@ -4,7 +4,7 @@ import pandas as pd
 import torch
 
 from dataset import create_basketball_dataloader
-from models import DQN_model, LSPI_model, LSPI_model_np
+from models import DQN_model, LSPI_model
 from features_config import TRAINING_FEATURES, FEATURES_TO_NORMALIZE
 from tqdm import tqdm
 
