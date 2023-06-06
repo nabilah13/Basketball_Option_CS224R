@@ -4,12 +4,13 @@ import pandas as pd
 import torch
 
 from dataset import create_basketball_dataloader
-from models import DQN_model
+from models import DQN_model, LSPI_model
 from features_config import TRAINING_FEATURES, FEATURES_TO_NORMALIZE
 from tqdm import tqdm
 
 
-def train_dqn_model(num_epochs: int, train_dataloader, valid_dataloader, model: DQN_model, skip_validation: int = 0):
+def train_model(num_epochs: int, train_dataloader, valid_dataloader, 
+                    model: DQN_model, skip_validation: int = 0):
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     for epoch in range(num_epochs):
         train_progress_bar = tqdm(enumerate(train_dataloader), total=len(train_dataloader), 
@@ -162,7 +163,7 @@ if __name__ == "__main__":
     # Train the appropriate model
     if model_type == "lspi":
         lspi_model = LSPI_model(len(TRAINING_FEATURES))
-        lspi_model = train_lspi_model(args.num_epochs, train_dataloader, valid_dataloader, lspi_model, args.skip_validation)
+        lspi_model = train_model(args.num_epochs, train_dataloader, valid_dataloader, lspi_model, args.skip_validation)
         # Score the validation set
         policy_df = score_validation_df(valid_dataloader, lspi_model)
         # Save the scored validation set
@@ -171,7 +172,7 @@ if __name__ == "__main__":
     else:
         # Create the model
         dqn_model = DQN_model(len(TRAINING_FEATURES))
-        dqn_model = train_dqn_model(args.num_epochs, train_dataloader, valid_dataloader, dqn_model, args.skip_validation)
+        dqn_model = train_model(args.num_epochs, train_dataloader, valid_dataloader, dqn_model, args.skip_validation)
         # Score the validation set
         policy_df = score_validation_df(valid_dataloader, dqn_model)
         # Save the scored validation set
