@@ -147,6 +147,9 @@ if __name__ == "__main__":
     parser.add_argument("--qvalfunction", type=str, nargs='?', 
                         default="DQN", 
                         help="Q Value Function")
+    parser.add_argument("--season", type=str, nargs='?', 
+                        default="2018-19", 
+                        help="Q Value Function")
     
     # Parse the command-line arguments
     args = parser.parse_args()
@@ -159,6 +162,7 @@ if __name__ == "__main__":
     # Calculate results
     results = [
         {"Q Value Function": args.qvalfunction,
+         "Season": args.season,
         "Policy Reward": qlearning_reward(scored_data, ngames), 
         "Policy Profit": qlearning_profit(scored_data, ngames), 
         "Max Reward": max_reward(scored_data, ngames),
@@ -175,20 +179,24 @@ if __name__ == "__main__":
     export_to_csv(results, "results.csv")
 
     # Create Distribution Plot
+    if args.qvalfunction == "LSPI":
+        color = 'red'
+    else:
+        color = 'lightblue'
     distr = exercise_distr(scored_data, ngames)
     sorted_keys = sorted(distr.keys())
     sorted_values = [distr[key] for key in sorted_keys]
     total = sum(sorted_values)
     percentages = [value / total * 100 for value in sorted_values]
-    bars = plt.bar(sorted_keys, percentages, color='lightblue')
+    bars = plt.bar(sorted_keys, percentages, color=color)
     for bar, percentage in zip(bars, percentages):
         plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), 
                 f'{percentage:.1f}%', ha='center', va='bottom')
     plt.xticks(sorted_keys)
     plt.xlabel('Quarters')
     plt.ylabel('Percentage')
-    plt.title('Distribution of {} Exercise Times'.format(args.qvalfunction))
-    plt.savefig('charts/{}_distr_barchart.png'.format(args.qvalfunction))
+    plt.title('Distribution of {} {} Exercise Times'.format(args.qvalfunction, args.season))
+    plt.savefig('charts/{}_{}_distr_barchart.png'.format(args.qvalfunction, args.season))
 
     #print(results)
     #revenue of each strtegy and profit of each strategy, and what percent of time model has you excercise in a certain quarter
