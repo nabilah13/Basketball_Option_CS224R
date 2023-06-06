@@ -45,7 +45,7 @@ def train_model(num_epochs: int, train_dataloader, valid_dataloader,
             epoch_loss += loss.item()
             num_batches += 1
             train_progress_bar.set_postfix({"Batch Loss": loss.item()})
-        # Calculate the average loss for the epoch TO DO FIX THIS
+        # Calculate the average loss for the epoch
         average_epoch_loss = epoch_loss / num_batches
         # Print the average loss for the epoch
         print(f"Epoch {epoch+1}/{num_epochs} - Train Average Loss: {average_epoch_loss:.4f}")
