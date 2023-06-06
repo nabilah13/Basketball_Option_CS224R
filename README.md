@@ -19,3 +19,10 @@ In `dataset.py`, we create a PyTorch dataloader suitable for q-learning. We seek
 
 ### Models
 In `models.py`, we define PyTorch modules for a multi-layer perceptron model (for Deep Q-Learning) and Linear Regression model (for Least-Squares Policy Iteration).
+
+### Training and Validation
+In `main.py`, we run the training and validation loops to allow our q-learning models to learn from a full season of data and run validation on a subsequent season. We output the scored dataframe as a 
+csv file to pass to the evaluation script.
+
+### Evaluation
+In `evaluation.py`, we take in the scored dataframe and calculate the revenue earned (`reward`) from exercising the basketball option as dictated by the policy output in the `exercise` column. We also evaluate several naive policies as a point of comparison. Finally, we calculate the expected profit/loss from each policy if the basketball option were to be priced as dictated by the `q_score` column for `interval`=0 for each player-game..

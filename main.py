@@ -1,4 +1,5 @@
 import argparse
+import os
 import pandas as pd
 import torch
 
@@ -96,8 +97,8 @@ if __name__ == "__main__":
     parser.add_argument("--input_valid_path", type=str, nargs='?', 
                         default="processed_data/nba_games_2019-20.csv", 
                         help="Path to the input CSV file")
-    parser.add_argument("--scored_valid_path", type=str, nargs='?', 
-                        default="scored_data/scored_nba_games_2019-20.csv", 
+    parser.add_argument("--scored_valid_filename", type=str, nargs='?', 
+                        default="scored_nba_games_2019-20.csv", 
                         help="Path to the input CSV file")
     parser.add_argument("--num_intervals", type=int, nargs='?',
                         default=4,
@@ -116,6 +117,11 @@ if __name__ == "__main__":
     # Parse the command-line arguments
     args = parser.parse_args()
 
+    if args.lspi_or_dqn == 0:
+        model_type = "lspi"
+    else:
+        model_type = "dqn"
+
     # Load the data
     train_df = pd.read_csv(args.input_train_path)
     valid_df = pd.read_csv(args.input_valid_path)
@@ -131,11 +137,22 @@ if __name__ == "__main__":
                                                     shuffle=True, num_intervals=args.num_intervals)
     valid_dataloader = create_basketball_dataloader(valid_df, batch_size=args.batch_size, 
                                                     shuffle=False, num_intervals=args.num_intervals)
-
-    # Create the model
-    dqn_model = DQN_model(len(TRAINING_FEATURES))
-    dqn_model = train_dqn_model(args.num_epochs, train_dataloader, valid_dataloader, dqn_model, args.skip_validation)
-
-    # Score the validation set
-    policy_df = score_validation_df(valid_dataloader, dqn_model)
-    policy_df.to_csv(args.scored_valid_path, index=False)
+    
+    # Train the appropriate model
+    if model_type == "lspi":
+        lspi_model = LSPI_model(len(TRAINING_FEATURES))
+        lspi_model = train_lspi_model(args.num_epochs, train_dataloader, valid_dataloader, lspi_model, args.skip_validation)
+        # Score the validation set
+        policy_df = score_validation_df(valid_dataloader, lspi_model)
+        # Save the scored validation set
+        scored_valid_path = os.path.join("scored_data", "lspi", args.scored_valid_filename)
+        policy_df.to_csv(scored_valid_path, index=False)
+    else:
+        # Create the model
+        dqn_model = DQN_model(len(TRAINING_FEATURES))
+        dqn_model = train_dqn_model(args.num_epochs, train_dataloader, valid_dataloader, dqn_model, args.skip_validation)
+        # Score the validation set
+        policy_df = score_validation_df(valid_dataloader, dqn_model)
+        # Save the scored validation set
+        scored_valid_path = os.path.join("scored_data", "dqn", args.scored_valid_filename)
+        policy_df.to_csv(scored_valid_path, index=False)
